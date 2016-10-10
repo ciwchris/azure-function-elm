@@ -3,85 +3,131 @@ module Main exposing (..)
 import Html.App
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onClick, onInput)
-import Http
+import Html.Events exposing (onWithOptions)
+import Material
+import Material.Scheme
+import Material.Button as Button
+import Material.Textfield as Textfield
+import Material.Options exposing (nop, attribute)
+import Material.Grid
+import Json.Decode as Json
 
 
--- import Json.Decode as Json
+type alias Model =
+    { name : String
+    , submitted : Bool
+    , action : String
+    , mdl : Material.Model
+    }
 
-import Task
 
-
-name : String
-name =
-    ""
+model : Model
+model =
+    { name = ""
+    , submitted = False
+    , action = ""
+    , mdl = Material.model
+    }
 
 
 type Msg
-    = GenerateAccountCard
-    | NameChange String
-    | HandleRawResponse (Result Http.RawError Http.Response)
-    | HandleResponse (Result Http.Error Http.Response)
+    = NameChange String
+    | FormSubmit
+    | Mdl (Material.Msg Msg)
 
 
-never : Never -> a
-never n =
-    never n
+onSubmit : Model -> Msg -> Attribute Msg
+onSubmit model message =
+    onWithOptions
+        "submit"
+        (if model.name == "" then
+            (Debug.log "prevent" { preventDefault = True, stopPropagation = True })
+         else
+            (Debug.log "allow" { preventDefault = False, stopPropagation = False })
+        )
+        (Json.succeed message)
 
 
-init : ( String, Cmd Msg )
-init =
-    ( "", Cmd.none )
-
-
-getAccountCard : Cmd Msg
-getAccountCard =
-    let
-        request =
-            Http.send Http.defaultSettings
-                { verb = "GET"
-                , headers =
-                    [ ( "Origin", "https://stcu-pdf-test.azurewebsites.net" ) ]
-                    -- , url = "https://stcu-pdf-test.azurewebsites.net/api/HttpTriggerCSharp1?code=awzikdgobcj6rk3r7no1po9726lu16h18&name=test"
-                , url = "https://stcu-pdf-test.azurewebsites.net/api/AccountCard?code=gh8q4v7a8n8j6j6myxb87r7cnwwzb7gfu&name=test"
-                , body = Http.empty
-                }
-    in
-        request
-            |> Task.toResult
-            |> Task.perform never HandleRawResponse
-
-
-update : Msg -> String -> ( String, Cmd Msg )
-update msg name =
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
     case msg of
-        GenerateAccountCard ->
-            ( name, getAccountCard )
-
         NameChange name ->
-            ( name, Cmd.none )
+            ( { model | name = name }, Cmd.none )
 
-        HandleRawResponse newUrl ->
-            ( name, Cmd.none )
+        FormSubmit ->
+            ( { model | submitted = True }, Cmd.none )
 
-        HandleResponse _ ->
-            ( name, Cmd.none )
+        Mdl msg' ->
+            Material.update msg' model
 
 
-view : String -> Html Msg
-view name =
-    div []
-        [ h2 [] [ text "Enter your name" ]
-        , input [ type' "text", onInput NameChange ] []
-        , button [ onClick GenerateAccountCard ] [ text "Create" ]
+view : Model -> Html Msg
+view model =
+    Html.form
+        [ target "_blank"
+        , method "GET"
+        , action "https://stcu-pdf-test.azurewebsites.net/api/AccountCard"
+        , onWithOptions
+            "submit"
+            (if model.name == "" then
+                (Debug.log "prevent" { preventDefault = True, stopPropagation = True })
+             else
+                (Debug.log "allow" { preventDefault = False, stopPropagation = False })
+            )
+            (Json.succeed FormSubmit)
         ]
+        [ Material.Grid.grid []
+            [ Material.Grid.cell []
+                [ input
+                    [ type' "hidden"
+                    , Html.Attributes.name "code"
+                    , value "gh8q4v7a8n8j6j6myxb87r7cnwwzb7gfu"
+                    ]
+                    []
+                , input
+                    [ type' "hidden"
+                    , Html.Attributes.name "name"
+                    , value model.name
+                    ]
+                    []
+                , Textfield.render
+                    Mdl
+                    [ 0 ]
+                    model.mdl
+                    [ Textfield.label "Enter your name"
+                    , Textfield.floatingLabel
+                    , Textfield.value model.name
+                    , if model.name == "" && model.submitted then
+                        Textfield.error ""
+                      else
+                        Material.Options.nop
+                    , Textfield.onInput NameChange
+                    ]
+                ]
+            , Material.Grid.cell []
+                [ Button.render Mdl
+                    [ 1 ]
+                    model.mdl
+                    [ Button.raised
+                    , Button.colored
+                    , Button.ripple
+                      -- , if model.name == "" then
+                      --     Button.disabled
+                      --   else
+                      --     Material.Options.nop
+                    ]
+                    [ text "Create" ]
+                ]
+            ]
+        ]
+        |> Material.Scheme.top
 
 
 main : Program Never
 main =
     Html.App.program
-        { init = init
+        { init = ( model, Cmd.none )
         , view = view
         , update = update
-        , subscriptions = \n -> Sub.none
+        , subscriptions = always Sub.none
         }
