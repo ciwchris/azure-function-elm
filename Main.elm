@@ -8,7 +8,7 @@ import Material
 import Material.Scheme
 import Material.Button as Button
 import Material.Textfield as Textfield
-import Material.Options exposing (nop, attribute)
+import Material.Options exposing (nop, attribute, css)
 import Material.Grid
 import Json.Decode as Json
 
@@ -101,17 +101,56 @@ view model =
                     [ Button.raised
                     , Button.colored
                     , Button.ripple
-                    , Button.onClick FormSubmit
                     , if model.name == "" then
-                        Button.type' "reset"
+                        Material.Options.nop
                       else
-                        Button.type' "submit"
+                        Material.Options.css "visibility" "hidden"
+                    , onPreventClick FormSubmit
+                    ]
+                    [ text "Create" ]
+                , Button.render Mdl
+                    [ 1 ]
+                    model.mdl
+                    [ Button.raised
+                    , Button.colored
+                    , Button.ripple
+                    , if model.name == "" then
+                        Material.Options.css "visibility" "hidden"
+                      else
+                        Material.Options.nop
+                    , Button.onClick FormSubmit
                     ]
                     [ text "Create" ]
                 ]
             ]
         ]
         |> Material.Scheme.top
+
+
+onPreventClickHtml : Msg -> Attribute Msg
+onPreventClickHtml msg =
+    onWithOptions
+        "click"
+        { preventDefault = True, stopPropagation = True }
+        (Json.succeed msg)
+
+
+onPreventClick : Msg -> Property Msg
+onPreventClick message =
+    Material.Options.set
+        (\options -> { options | onClick = Just (onPreventClickHtml message) })
+
+
+type alias Property m =
+    Material.Options.Property (Config m) m
+
+
+type alias Config m =
+    { ripple : Bool
+    , onClick : Maybe (Attribute m)
+    , disabled : Bool
+    , type' : Maybe String
+    }
 
 
 main : Program Never

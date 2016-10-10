@@ -13724,6 +13724,24 @@ var _debois$elm_mdl$Material_Scheme$topWithScheme = F3(
 var _debois$elm_mdl$Material_Scheme$top = function (content) {
 	return A3(_debois$elm_mdl$Material_Scheme$topWithScheme, _debois$elm_mdl$Material_Color$Grey, _debois$elm_mdl$Material_Color$Grey, content);
 };
+var _user$project$Main$onPreventClickHtml = function (msg) {
+	return A3(
+		_elm_lang$html$Html_Events$onWithOptions,
+		'click',
+		{preventDefault: true, stopPropagation: true},
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _user$project$Main$onPreventClick = function (message) {
+	return _debois$elm_mdl$Material_Options$set(
+		function (options) {
+			return _elm_lang$core$Native_Utils.update(
+				options,
+				{
+					onClick: _elm_lang$core$Maybe$Just(
+						_user$project$Main$onPreventClickHtml(message))
+				});
+		});
+};
 var _user$project$Main$update = F2(
 	function (msg, model) {
 		var _p0 = msg;
@@ -13760,6 +13778,10 @@ var _user$project$Main$model = {name: '', submitted: false, action: '', mdl: _de
 var _user$project$Main$Model = F4(
 	function (a, b, c, d) {
 		return {name: a, submitted: b, action: c, mdl: d};
+	});
+var _user$project$Main$Config = F4(
+	function (a, b, c, d) {
+		return {ripple: a, onClick: b, disabled: c, type$: d};
 	});
 var _user$project$Main$Mdl = function (a) {
 	return {ctor: 'Mdl', _0: a};
@@ -13846,8 +13868,26 @@ var _user$project$Main$view = function (model) {
 											_debois$elm_mdl$Material_Button$raised,
 											_debois$elm_mdl$Material_Button$colored,
 											_debois$elm_mdl$Material_Button$ripple,
-											_debois$elm_mdl$Material_Button$onClick(_user$project$Main$FormSubmit),
-											_elm_lang$core$Native_Utils.eq(model.name, '') ? _debois$elm_mdl$Material_Button$type$('reset') : _debois$elm_mdl$Material_Button$type$('submit')
+											_elm_lang$core$Native_Utils.eq(model.name, '') ? _debois$elm_mdl$Material_Options$nop : A2(_debois$elm_mdl$Material_Options$css, 'visibility', 'hidden'),
+											_user$project$Main$onPreventClick(_user$project$Main$FormSubmit)
+										]),
+									_elm_lang$core$Native_List.fromArray(
+										[
+											_elm_lang$html$Html$text('Create')
+										])),
+									A5(
+									_debois$elm_mdl$Material_Button$render,
+									_user$project$Main$Mdl,
+									_elm_lang$core$Native_List.fromArray(
+										[1]),
+									model.mdl,
+									_elm_lang$core$Native_List.fromArray(
+										[
+											_debois$elm_mdl$Material_Button$raised,
+											_debois$elm_mdl$Material_Button$colored,
+											_debois$elm_mdl$Material_Button$ripple,
+											_elm_lang$core$Native_Utils.eq(model.name, '') ? A2(_debois$elm_mdl$Material_Options$css, 'visibility', 'hidden') : _debois$elm_mdl$Material_Options$nop,
+											_debois$elm_mdl$Material_Button$onClick(_user$project$Main$FormSubmit)
 										]),
 									_elm_lang$core$Native_List.fromArray(
 										[
