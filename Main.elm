@@ -3,7 +3,7 @@ module Main exposing (..)
 import Html.App
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onWithOptions)
+import Html.Events exposing (onClick, onWithOptions)
 import Material
 import Material.Scheme
 import Material.Button as Button
@@ -40,11 +40,7 @@ onSubmit : Model -> Msg -> Attribute Msg
 onSubmit model message =
     onWithOptions
         "submit"
-        (if model.name == "" then
-            (Debug.log "prevent" { preventDefault = True, stopPropagation = True })
-         else
-            (Debug.log "allow" { preventDefault = False, stopPropagation = False })
-        )
+        { preventDefault = False, stopPropagation = False }
         (Json.succeed message)
 
 
@@ -67,14 +63,7 @@ view model =
         [ target "_blank"
         , method "GET"
         , action "https://stcu-pdf-test.azurewebsites.net/api/AccountCard"
-        , onWithOptions
-            "submit"
-            (if model.name == "" then
-                (Debug.log "prevent" { preventDefault = True, stopPropagation = True })
-             else
-                (Debug.log "allow" { preventDefault = False, stopPropagation = False })
-            )
-            (Json.succeed FormSubmit)
+        , onSubmit model FormSubmit
         ]
         [ Material.Grid.grid []
             [ Material.Grid.cell []
@@ -88,6 +77,7 @@ view model =
                     [ type' "hidden"
                     , Html.Attributes.name "name"
                     , value model.name
+                    , required True
                     ]
                     []
                 , Textfield.render
@@ -111,10 +101,11 @@ view model =
                     [ Button.raised
                     , Button.colored
                     , Button.ripple
-                      -- , if model.name == "" then
-                      --     Button.disabled
-                      --   else
-                      --     Material.Options.nop
+                    , Button.onClick FormSubmit
+                    , if model.name == "" then
+                        Button.type' "reset"
+                      else
+                        Button.type' "submit"
                     ]
                     [ text "Create" ]
                 ]

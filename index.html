@@ -13753,13 +13753,7 @@ var _user$project$Main$onSubmit = F2(
 		return A3(
 			_elm_lang$html$Html_Events$onWithOptions,
 			'submit',
-			_elm_lang$core$Native_Utils.eq(model.name, '') ? A2(
-				_elm_lang$core$Debug$log,
-				'prevent',
-				{preventDefault: true, stopPropagation: true}) : A2(
-				_elm_lang$core$Debug$log,
-				'allow',
-				{preventDefault: false, stopPropagation: false}),
+			{preventDefault: false, stopPropagation: false},
 			_elm_lang$core$Json_Decode$succeed(message));
 	});
 var _user$project$Main$model = {name: '', submitted: false, action: '', mdl: _debois$elm_mdl$Material$model};
@@ -13783,17 +13777,7 @@ var _user$project$Main$view = function (model) {
 					_elm_lang$html$Html_Attributes$target('_blank'),
 					_elm_lang$html$Html_Attributes$method('GET'),
 					_elm_lang$html$Html_Attributes$action('https://stcu-pdf-test.azurewebsites.net/api/AccountCard'),
-					A3(
-					_elm_lang$html$Html_Events$onWithOptions,
-					'submit',
-					_elm_lang$core$Native_Utils.eq(model.name, '') ? A2(
-						_elm_lang$core$Debug$log,
-						'prevent',
-						{preventDefault: true, stopPropagation: true}) : A2(
-						_elm_lang$core$Debug$log,
-						'allow',
-						{preventDefault: false, stopPropagation: false}),
-					_elm_lang$core$Json_Decode$succeed(_user$project$Main$FormSubmit))
+					A2(_user$project$Main$onSubmit, model, _user$project$Main$FormSubmit)
 				]),
 			_elm_lang$core$Native_List.fromArray(
 				[
@@ -13825,7 +13809,8 @@ var _user$project$Main$view = function (model) {
 										[
 											_elm_lang$html$Html_Attributes$type$('hidden'),
 											_elm_lang$html$Html_Attributes$name('name'),
-											_elm_lang$html$Html_Attributes$value(model.name)
+											_elm_lang$html$Html_Attributes$value(model.name),
+											_elm_lang$html$Html_Attributes$required(true)
 										]),
 									_elm_lang$core$Native_List.fromArray(
 										[])),
@@ -13857,7 +13842,13 @@ var _user$project$Main$view = function (model) {
 										[1]),
 									model.mdl,
 									_elm_lang$core$Native_List.fromArray(
-										[_debois$elm_mdl$Material_Button$raised, _debois$elm_mdl$Material_Button$colored, _debois$elm_mdl$Material_Button$ripple]),
+										[
+											_debois$elm_mdl$Material_Button$raised,
+											_debois$elm_mdl$Material_Button$colored,
+											_debois$elm_mdl$Material_Button$ripple,
+											_debois$elm_mdl$Material_Button$onClick(_user$project$Main$FormSubmit),
+											_elm_lang$core$Native_Utils.eq(model.name, '') ? _debois$elm_mdl$Material_Button$type$('reset') : _debois$elm_mdl$Material_Button$type$('submit')
+										]),
 									_elm_lang$core$Native_List.fromArray(
 										[
 											_elm_lang$html$Html$text('Create')
